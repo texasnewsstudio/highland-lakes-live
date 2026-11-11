@@ -1,0 +1,7 @@
+REAL ESTATE DASHBOARD SETUP
+
+The website is static and cannot retrieve large Realtor.com CSV data reliably from the browser. Deploy cloudflare-housing-worker.js as a Cloudflare Worker and set route highlandlakeslive.com/api/housing* on your domain. The real-estate-center.html page fetches /api/housing and displays the newest published monthly Realtor.com ZIP-level statistics. No API key is required.
+
+The Worker source endpoint has not been tested from this environment, which has no external network access. Test the Worker route in your browser before going live. If the upstream endpoint changes, update SOURCE in the Worker. On failure, the dashboard shows dashes and an official source link, never invented statistics. Cloudflare caches successful results for 12 hours.
+
+Realtor.com Economic Research attribution is displayed on the page. Verify reuse terms for your application. ZIP areas may include more than one municipality.
