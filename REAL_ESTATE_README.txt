@@ -1,0 +1,1 @@
+NO WORKERS OR FUNCTIONS REQUIRED. The Real Estate Center uses static HTML and client-side JavaScript. The mortgage calculator and city selector work without an API. Current listings are accessible via clickable provider links. Monthly statistics are available at Realtor.com Research; this ZIP does NOT claim to fetch live MLS data. All existing pages retained.

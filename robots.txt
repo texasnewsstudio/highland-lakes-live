@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://highlandlakeslive.com/sitemap.xml
