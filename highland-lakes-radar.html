@@ -87,7 +87,7 @@
 const TX=L.latLngBounds([25.75,-106.55],[36.50,-93.52]);
 const HILL=L.latLngBounds([29.65,-99.65],[31.12,-97.40]);
 const map=L.map('map',{zoomControl:false,attributionControl:false,dragging:true,scrollWheelZoom:true,doubleClickZoom:true,boxZoom:true,keyboard:true,tap:true,zoomAnimation:true,fadeAnimation:true,markerZoomAnimation:true,preferCanvas:true,minZoom:5,maxZoom:11});
-map.fitBounds(TX,{padding:[12,12],animate:false});
+map.setView([31.1,-99.2],6,{animate:false});
  L.control.zoom({position:"bottomleft"}).addTo(map);
 const panes={spc:300,radar:320,bounds:390,stateBorders:405,alerts:420,roads:445,labels:470,temps:480};Object.entries(panes).forEach(([n,z])=>{map.createPane(n);map.getPane(n).style.zIndex=z;map.getPane(n).style.pointerEvents='none'});
 L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',{maxZoom:16,opacity:1,keepBuffer:3}).addTo(map);
