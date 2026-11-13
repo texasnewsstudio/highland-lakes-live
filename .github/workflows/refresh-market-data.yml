@@ -1,0 +1,30 @@
+name: Refresh Highland Lakes Market Data
+on:
+  schedule:
+    - cron: '17 12 * * *'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: highland-lakes-market-refresh
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install 'pypdf>=5,<7'
+      - name: Retrieve official USDA data and update native dashboard
+        run: python scripts/refresh_market_data.py
+      - name: Publish only changed data
+        run: |
+          git config user.name "Highland Lakes Data Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add cattle-hay-livestock.html
+          if ! git diff --cached --quiet; then
+            git commit -m "Refresh official USDA market data"
+            git push
+          fi
