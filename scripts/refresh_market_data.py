@@ -17,7 +17,7 @@ def get_report(url):
     if not raw.startswith(b"%PDF"): raise ValueError("Not a PDF")
     reader=PdfReader(io.BytesIO(raw))
     text="\n".join((page.extract_text() or "") for page in reader.pages[:3])
-    lines=[re.sub(r"\\s+"," ",line).strip() for line in text.splitlines()]
+    lines=[re.sub(r"\s+"," ",line).strip() for line in text.splitlines()]
     lines=[line for line in lines if len(line)>3]
     if len(lines)<12: raise ValueError("Insufficient extracted report data")
     return lines
