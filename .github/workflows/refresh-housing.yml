@@ -1,0 +1,23 @@
+name: Refresh real estate Census snapshot
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 12 * * 1'
+permissions:
+  contents: write
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download verified Census data
+        run: python3 scripts/refresh-housing.py
+      - name: Commit only changed data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/housing-acs.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Refresh published Census housing snapshot"
+            git push
+          fi
