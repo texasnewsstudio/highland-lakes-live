@@ -24,8 +24,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Generate sitemap from all site pages
-        run: python scripts/generate_sitemap.py
       - name: Commit and publish sitemap with retry for concurrent updates
         shell: bash
         run: |
@@ -36,6 +34,9 @@ jobs:
           # Regenerate from the newest main branch on every attempt.
           for attempt in 1 2 3 4 5; do
             git fetch origin main
+            # Discard only the previously generated sitemap before syncing.
+            # Otherwise checkout can fail when a newer commit changed sitemap.xml.
+            git restore --source=HEAD --staged --worktree sitemap.xml || true
             git checkout -B main origin/main
             python scripts/generate_sitemap.py
             git add sitemap.xml
@@ -49,6 +50,7 @@ jobs:
               exit 0
             fi
             echo "Concurrent update detected; retrying ($attempt/5)."
+            git reset --hard HEAD
             sleep 3
           done
           echo "Could not publish sitemap after five attempts." >&2
