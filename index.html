@@ -1271,66 +1271,17 @@ render();loadCurrent();setInterval(next,8000);setInterval(()=>{reports.clear();l
   'images/feature-devils-waterhole-inks-lake.webp'
  ];
  const fallback=[
-  {title:'QUARRY PARK LIGHTS UP! GRANITE SHOALS KICKS OFF HOLIDAY MAGIC',source:'Highland Lakes Live',date:'2026-11-21T12:00:00-06:00',url:'news-nov21-2026-granite-shoals-lights.html'},
-  {title:'MARBLE FALLS TURNS UP THE VOLUME! MUSIC AND COMEDY FILL THE WEEKEND',source:'Highland Lakes Live',date:'2026-11-21T12:00:00-06:00',url:'news-nov21-2026-marble-falls-music.html'},
-  {title:'COURTHOUSE SQUARE COMES ALIVE! LLANO MARKET RETURNS SATURDAY',source:'Highland Lakes Live',date:'2026-11-21T12:00:00-06:00',url:'news-nov21-2026-llano-market.html'},
-  {title:'Central Texas and Hill Country headlines',source:'KXAN Austin',url:'https://www.kxan.com/news/local/'},
-  {title:'Marble Falls, Burnet and Highland Lakes local reporting',source:'DailyTrib',url:'https://www.dailytrib.com/'},
-  {title:'Waco, Temple and Killeen regional news',source:'KWTX',url:'https://www.kwtx.com/'},
-  {title:'Austin and surrounding communities',source:'KXAN',url:'https://www.kxan.com/'},
-  {title:'San Antonio and Hill Country area news',source:'KSAT',url:'https://www.ksat.com/news/local/'},
-  {title:'Central Texas community and government updates',source:'City of Marble Falls',url:'https://www.marblefallstx.gov/'}
+  {title:'KINGSLAND COMMUNITY THANKSGIVING DINNER SET FOR SUNDAY',source:'Highland Lakes Live',date:'2026-11-22T09:00:00-06:00',url:'news-nov22-2026-01.html'},
+  {title:'MARBLE FALLS COMMUNITY MEAL WELCOMES NEIGHBORS',source:'Highland Lakes Live',date:'2026-11-22T09:00:00-06:00',url:'news-nov22-2026-02.html'},
+  {title:'ROUND MOUNTAIN CIDER MILL HOSTS SUNDAY MARKET',source:'Highland Lakes Live',date:'2026-11-22T09:00:00-06:00',url:'news-nov22-2026-03.html'},
+  {title:'BURNET SCHOLARSHIP BAKE SALE SET FOR TUESDAY',source:'Highland Lakes Live',date:'2026-11-22T09:00:00-06:00',url:'news-nov22-2026-04.html'},
+  {title:'MARBLE FALLS FARMERS MARKET RETURNS NOVEMBER 24',source:'Highland Lakes Live',date:'2026-11-22T09:00:00-06:00',url:'news-nov22-2026-05.html'},
+  {title:'LLANO CHURCH PLANS THANKSGIVING COMMUNITY MEAL',source:'Highland Lakes Live',date:'2026-11-22T09:00:00-06:00',url:'news-nov22-2026-06.html'}
  ];
  function card(x,i){const a=document.createElement('a');a.className='hll-feed-item';a.href=x.url;if(/^https:\/\//.test(x.url)){a.target='_blank';a.rel='noopener noreferrer';}const img=document.createElement('img');img.className='hll-feed-thumb';img.src=photos[i%photos.length];img.alt='Representative Highland Lakes area photograph, not an image of this news story';img.loading='lazy';const c=document.createElement('span');c.className='hll-feed-copy';const t=document.createElement('span');t.className='hll-feed-title';t.textContent=x.title;const m=document.createElement('span');m.className='hll-feed-meta';m.textContent=x.source+(x.date?' · '+new Date(x.date).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'');c.append(t,m);a.append(img,c);return a;}
  function render(items){list.replaceChildren(...items.slice(0,6).map(card));}
- render(fallback.slice(0,3));
-
- // Prioritize Highland Lakes / Hill Country. No San Antonio Report feed.
- // Independent requests allow the other feeds to work when one source fails.
- const searches=[
-  ['Highland Lakes','"Marble Falls" OR "Horseshoe Bay" OR "Granite Shoals" OR "Lake LBJ" when:14d'],
-  ['Burnet & Llano','"Burnet County" OR "Llano County" OR "Kingsland Texas" OR "Lake Buchanan" when:14d'],
-  ['Central Texas','"Georgetown Texas" OR "Cedar Park" OR "Round Rock" OR "Temple Texas" OR "Killeen Texas" when:7d']
- ];
- const feeds=[
-  ...searches.map(([name,q])=>[name,'https://news.google.com/rss/search?q='+encodeURIComponent(q)+'&hl=en-US&gl=US&ceid=US:en']),
-  ['KXAN Austin','https://www.kxan.com/feed/']
- ];
- const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),11000);
- async function readFeed([name,url]){
-   const r=await fetch('https://api.allorigins.win/raw?url='+encodeURIComponent(url),{signal:ctl.signal});
-   if(!r.ok)throw Error('RSS unavailable');
-   const xml=await r.text(),doc=new DOMParser().parseFromString(xml,'application/xml');
-   if(doc.querySelector('parsererror'))throw Error('Invalid RSS');
-   return [...doc.querySelectorAll('item')].slice(0,20).map(node=>{
-     const title=node.querySelector('title')?.textContent?.trim()||'';
-     const link=node.querySelector('link')?.textContent?.trim()||'';
-     const date=node.querySelector('pubDate')?.textContent||'';
-     const publisher=node.querySelector('source')?.textContent?.trim()||name;
-     return {title,url:link,date,source:publisher};
-   }).filter(x=>x.title&&/^https:\/\//.test(x.url));
- }
- Promise.allSettled(feeds.map(readFeed)).then(results=>{
-   const batches=results.map(x=>x.status==='fulfilled'?x.value:[]);
-   // Round-robin sources: one publisher cannot dominate all six cards.
-   const chosen=fallback.slice(0,3),seen=new Set(chosen.map(x=>x.title.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,90)));
-   const cutoff=Date.parse('2026-11-21T00:00:00-06:00');
-   for(let round=0;round<20&&chosen.length<6;round++){
-     for(const batch of batches){
-       const x=batch[round];if(!x||!x.date||!Number.isFinite(Date.parse(x.date))||Date.parse(x.date)<cutoff)continue;
-       const key=x.title.toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,90);
-       if(!seen.has(key)){seen.add(key);chosen.push(x);}
-       if(chosen.length===6)break;
-     }
-   }
-   if(chosen.length){
-     render(chosen);
-     status.textContent='November 21 local reports first · Additional publisher headlines appear only when dated November 21 or later.';
-   }else{
-     status.textContent='Live feeds are temporarily unavailable. Today’s original local reports remain available.';
-   }
- }).finally(()=>clearTimeout(timer));
-
+ render(fallback);
+ status.textContent='November 22, 2026 · Six original Highland Lakes Live local updates. Select a headline to read on this site.';
 })();
 </script>
 <script>document.querySelectorAll('.hll-navigation .hsb-menu>button').forEach(b=>b.addEventListener('click',()=>{const menu=b.parentElement;const isOpen=b.getAttribute('aria-expanded')==='true';document.querySelectorAll('.hll-navigation .hsb-menu>button').forEach(x=>{x.setAttribute('aria-expanded','false');x.parentElement.classList.remove('hll-open')});b.setAttribute('aria-expanded',String(!isOpen));menu.classList.toggle('hll-open',!isOpen)}));</script><style>.hll-navigation .hsb-menu.hll-open>.hsb-sub{display:block!important}</style><style id="hll-nav-live-fit-fix">
